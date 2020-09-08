@@ -1,0 +1,36 @@
+---
+output: github_document
+---
+
+# Deploy
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Repositório principal do curso Deploy.
+
+Inscreva-se no curso: https://www.curso-r.com/cursos/deploy
+
+**Acesse o material completo do curso escolhendo uma das turmas abaixo**.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+knitr::kable(CursoR:::listar_turmas_recentes("deploy"))
+```
+
+# Ementa
+
+- O que é deploy (implantação)
+- O que é uma API
+- O pacote `{plumber}`
+- O que é uma máquina virtual
+- O que é `docker`
+- Como empacotar um dashboard
+- O pacote `{golem}`
+- Como automatizar um deploy com `docker`
+
