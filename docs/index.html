@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Workshop: Deploy</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link rel="stylesheet" href="css/xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Workshop: Deploy
+### <img src = 'https://d33wubrfki0l68.cloudfront.net/9b0699f18268059bdd2e5c21538a29eade7cbd2b/67e5c/img/logo/cursor1-5.png' width = '20%'>
+### Outubro 2020
+
+---
+
+
+
+
+class: inverse, center, middle
+# Prólogo
+
+---
+# Curso-R
+
+&lt;img src="static/nos.png" width="754" style="display: block; margin: auto;" /&gt;
+
+---
+# Linha do tempo
+
+&lt;img src="static/cursor.png" width="374" style="display: block; margin: auto;" /&gt;
+
+---
+# Sobre o curso
+
+- Alguns lembretes:
+  
+  - O curso ocorre das **9:00 às 13:00**
+  
+  - A **gravação** do curso ficará disponível para todos por 1 ano
+  
+  - Todos se tornarão membros preferenciais no nosso **Discourse**
+
+- Algumas sugestões:
+  
+  - **Lave as mãos** sempre que puder e fique em casa
+  
+  - Levante para se **alongar** regularmente durante a aula
+
+---
+# Na aula de hoje
+
+- O que é deploy (implantação)
+
+- O que é uma API
+
+- O pacote `{plumber}`
+
+- O que é uma máquina virtual
+
+- O que é docker
+
+- Como empacotar um dashboard
+
+- O pacote `{golem}`
+
+- Como automatizar um deploy
+
+---
+# Está tudo preparado?
+
+- Conta Google
+
+- Cadastro no Google Cloud
+
+- Conta GitHub
+
+- Conta Docker Hub
+
+- Instalação R e RStudio
+
+- Instalação `{plumber}`, `{tidyverse}`, `{golem}`
+
+---
+class: inverse, center, middle
+# Introdução
+
+---
+# O que significa "deploy"?
+
+&gt; Implantação de software são todas as atividades que tornam um sistema
+disponível para uso
+
+- No geral, colocar um software em produção envolve uma série de passos e
+técnicas simples e complexos
+
+  - Tirar o código do seu computador e colocá-lo em um **servidor**
+  
+  - Permitir que o software seja **atualizado** sempre que necessário
+  
+  - Garantir a **estabilidade** do serviço levando em conta a quantidade de usuários
+  
+  - **Disponibilizar** o software de forma útil para o usuário final
+  
+  - Não perder a cabeça no caminho...
+
+---
+# Exemplos de implantação
+
+- Disponibilizar uma API
+
+  - **Produto**: código que realiza uma tarefa específica dada uma entrada
+  
+  - **Objetivo**: permitir que um usuário faça uma chamada para o software e
+  receba a resposta desejada
+  
+  - **Implantação**: servir a API em uma máquina remota
+
+- Transformar um dashboard em um site:
+
+  - **Produto**: código que, quando executado, exibe um dashboard interativo
+  
+  - **Objetivo**: ter um endereço fixo que, quando acessado, exibe o dashboard
+  
+  - **Implantação**: servir o dashboard em uma máquina remota
+
+---
+class: inverse, center, middle
+# APIs
+
+---
+# O que é uma API?
+
+&gt; _Application Programming Interface_ (API) é uma interface de computação que
+define interações entre múltiplos softwares intermediários
+
+- Essencialmente uma API é uma forma de um computador falar com outro sem
+precisar de um humano
+
+- Uma API define:
+
+  - As **chamadas e requisições** que podem ser feitas (e como fazê-las)
+  
+  - Os **formatos** de dados que podem ser utilizados
+  
+  - As **convenções** a serem seguidas
+
+- Hoje falaremos especificamente de APIs REST em HTTP, ou seja, **APIs para
+serviços web**
+
+---
+# Exemplo de API
+
+- Um exemplo de API **sem autenticação** é a PokéAPI: https://pokeapi.co/docs/v2
+
+- A **documentação** é provavelmente o melhor lugar para entender uma API:
+
+&lt;img src="static/pokeapi.png" width="1187" style="display: block; margin: auto;" /&gt;
+
+- Uma API não deixa de ser um "link" que aceita parâmetros e retorna dados
+
+  - Qual a diferença entre um site e uma API?
+
+---
+# PokéAPI
+
+- Este **endpoint** recebe o nome de um Pokémon e retorna uma lista de dados
+
+
+```r
+library(httr)
+
+resposta &lt;- GET("https://pokeapi.co/api/v2/pokemon/ditto")
+resposta
+```
+
+```
+#&gt; Response [https://pokeapi.co/api/v2/pokemon/ditto]
+#&gt;   Date: 2021-07-14 18:00
+#&gt;   Status: 200
+#&gt;   Content-Type: application/json; charset=utf-8
+#&gt;   Size: 20.5 kB
+```
+
+```r
+content(resposta)$moves[[1]]$move$name
+```
+
+```
+#&gt; [1] "transform"
+```
+
+---
+# Exemplo de API com autenticação
+
+
+
+- exemplos de APIs **com autenticação** são as da NASA: https://api.nasa.gov/
+
+- APIs podem receber parâmetros que alteram o seu comportamento (p.e. chave)
+
+&lt;img src="static/nasaapi.png" width="774" style="display: block; margin: auto;" /&gt;
+
+---
+# APOD API
+
+- Este **endpoint** retorna a "foto astronômica do dia" para uma certa data
+
+
+```r
+params &lt;- list(
+  date = "2019-12-31",
+  api_key = NASA_KEY # Guardada no meu computador
+)
+
+resp &lt;- GET("https://api.nasa.gov/planetary/apod", query = params)
+content(resp)$url
+```
+
+```
+#&gt; NULL
+```
+
+- Neste caso, ainda podemos utilizar a resposta da API para exibir uma imagem
+
+  - Poderíamos, por exemplo, implementar um **site que consulta** essa API
+
+---
+background-image: url(https://apod.nasa.gov/apod/image/1912/M33-HaLRGB-RayLiao1024.jpg)
+background-size: cover
+
+---
+# O pacote {plumber}
+
+&gt; Um pacote R que converte o seu código R pré-existente em uma API web usando
+uma coleção de comentários especiais de uma linha
+
+- Qualquer função que recebe uma entrada bem definida e retorna uma saída
+estruturada pode se tornar uma API
+
+- Casos de uso:
+
+  - Retornar entradas de uma **tabela**
+  
+  - Aplicar um **modelo** (vide https://decryptr.netlify.app/)
+  
+  - Inicializar um **processo externo**
+  
+  - Muito mais...
+
+---
+# Exemplo de {plumber}
+
+- Para criar uma **API local** com o `{plumber}`, basta comentar informações
+sobre o endpoint usando `#*`
+
+
+```r
+library(plumber)
+
+#* Escreve uma mensagem
+#* @param msg A mensagem para escrever
+#* @get /echo
+function(msg = "") {
+  paste0("A mensagem é: '", msg, "'")
+}
+```
+
+- A função precisa estar salva em um arquivo para que possamos invocar os poderes
+do `{plumber}` no mesmo
+
+---
+# Invocando a API
+
+- Para implantar a API **localmente**, basta rodar os dois comandos a seguir
+
+
+```r
+api &lt;- plumb("arqs/exemplo_api.R")
+api$run(port = 8000)
+```
+
+- A função `run()` inicializa a API em http://localhost:8000 (dependendo da
+**porta** escolhida)
+
+
+```r
+params &lt;- list(msg = "Funciona!")
+resp &lt;- GET("http://localhost:8000/echo", query = params)
+
+content(resp)[[1]]
+```
+
+`#&gt; [1] "A mensagem é: 'Funciona!'"`
+
+---
+# Swagger
+
+- Swagger é essencialmente uma API que ajuda a criar APIs, incluindo uma
+interface com **documentação** em http://localhost:8000/__swagger__/
+
+&lt;img src="static/swagger.png" width="644" style="display: block; margin: auto;" /&gt;
+
+---
+# Uma nota sobre REST
+
+&gt; _Representational State Transfer_ (REST) é um estilo de arquitetura de
+software que define um conjunto de restrições a serem utilizadas para criar um
+serviço web
+
+- O _Hypertext Transfer Protocol_ (HTTP) é a base para toda a **Web**
+(≠ Internet)
+
+  - Ele define uma série de **métodos de requisição** para que um computador
+  seja capaz de "pegar" e "mandar" conteúdo da/para a Internet
+  
+  - `GET` pega, `POST` envia e assim por diante
+
+- REST usa os comandos HTTP para definir as mesmas operações, mas **sem estado**
+
+  - Um site requer uma interação permanente com o usuário, enquanto uma API
+  realiza **operações instantâneas**
+
+---
+# Exemplo de POST
+
+- Um **endpoint** POST normalmente recebe dados, esse é um exemplo simples
+
+
+```r
+#* Retorna a soma de dois números
+#* @param a O primeiro número
+#* @param b O segundo número
+#* @post /sum
+function(a, b) {
+  as.numeric(a) + as.numeric(b)
+}
+```
+
+
+```r
+params &lt;- list(a = 2, b = 4)
+resp &lt;- POST("http://localhost:8000/sum", body = params, encode = "json")
+
+content(resp)[[1]]
+```
+
+`#&gt; [1] 6`
+
+---
+class: inverse, center, middle
+# Docker
+
+---
+# O que é Docker?
+
+&gt; Docker é uma _platform as a service_ (PaaS) que usa virtualização de sistemas
+operacionais para implantar softwares em "contêineres"
+
+- O Docker não passa de um programa que roda no seu computador e permite
+criar e usar **contêineres**
+
+- Contêineres são máquinas virtuais (mais sobre isso a seguir) "superficiais",
+acessíveis somente pela linha de comando
+
+- Contêineres são **isolados** entre si e empacotam seu próprio **software**,
+bibliotecas e configuração
+
+- Contêineres são construídos em cima de **imagens**, modelos que descrevem os
+componentes da máquina virtual
+
+- Para testar, acesse https://labs.play-with-docker.com/
+
+---
+# O que é uma máquina virtual?
+
+&gt; Máquina virtual (VM) é um software que provém a funcionalidade de um
+computador físico, mas apenas através de emulação
+
+- Normalmente uma máquina virtual emula um **sistema operacional** completo,
+desde um monitor até entradas USB
+
+- Um hipervisor usa software nativo para simular **hardware virtual**,
+permitindo que código seja executado sem saber que está em uma VM
+
+- Com uma VM é possível "criar" um computador Ubuntu dentro de um Windows e
+vice-versa, por exemplo
+
+- Diferentemente de um contêiner, VMs são pesadas e "profundas", dependendo de
+uma imagem (ISO) para instalar o sistema operacional
+
+---
+# Docker vs. VM
+
+- Note as vantagens e desvantagens de cada arquitetura
+
+&lt;img src="static/dockervm.png" width="905" style="display: block; margin: auto;" /&gt;
+
+---
+# Dockerfile
+
+- Grande parte das imagens Docker já estão disponíveis no **Docker Hub** (como
+um CRAN do Docker)
+
+  - Inclusive, lá estão várias imagens específicas para R, incluíndo RStudio
+  Server, Shiny, etc. https://hub.docker.com/u/rocker
+
+- Podemos criar uma imagem nova com um **Dockerfile**, um arquivo que especifica
+como ela deve ser construída
+
+  - O primeiro componente é sempre a **imagem base** (muitas vezes um sistema
+  operacional)
+  
+  - A seguir vêm os comandos de **configuração**
+  
+  - Por fim, o **comando** a ser executado pelo contêiner
+
+---
+# Exemplo de Dockerfile
+
+- A base já foi feita pelo autor do `{plumber}` e tem tudo que precisamos
+
+- Copiamos o arquivo para **dentro do contêiner** de modo a utilizá-lo
+
+- **Expor a porta** 8000 é necessário porque ela é onde a API será servida
+
+- O **comando** de execução deve ser o caminho para o arquivo fonte da API (isso
+está descrito na documentação)
+
+```{}
+FROM trestletech/plumber
+
+COPY exemplo_api.R /
+
+EXPOSE 8000/tcp
+CMD ["/exemplo_api.R"]
+```
+
+---
+# Exemplo de imagem e contêiner
+
+- Para criar a imagem, é necessário estar dentro do diretório do Dockerfile
+
+- O comando `docker build` monta uma imagem a partir do Dockerfile e seus
+arquivos associados e dá um nome para a mesma (argumento `-t`)
+
+- O comando `docker run` executa uma imagem, criando um contêiner
+
+  - O argumento `-p` indica a porta a ser servida no hospedeiro e a porta
+  original
+  
+  - O argumento `--rm` limpa o armazenamento depois que tudo acaba
+
+```{}
+cd arqs/exemplo_api/
+
+docker build -t exemplo .
+
+docker run -p 8000:8000 --rm exemplo
+```
+
+---
+# Implantação contínua
+
+&gt; Em engenharia de software, CI/CD refere-se genericamente à combinação das
+práticas de integração contínua (CI) e implantação contínua (CD)
+
+- Dado um certo código e um método consistente de implantá-lo, faz todo sentido
+**automatizar** o processo
+
+- Implantação contínua normalmente envolve transferir a versão mais
+recente/**estável** do software e colocá-la em produção
+
+  - O CD de um serviço encapsulado em Docker necessita automatizar o **build**
+
+  - Existe uma série de serviços que detectam uma nova versão de um
+  **repositório** e automaticamente criam atualizam a sua imagem
+
+- Hoje vamos falar sobre o **Google Cloud Build** porque ele se conecta em
+outros serviços que vamos usar
+
+---
+class: inverse, center, middle
+# Deploy
+
+---
+# Google Cloud Platform
+
+&gt; Google Cloud Platform (GCP) é um conjunto de serviços na nuvem, incluindo
+processamento, armazenamento, analytics e machine learning
+
+- A "**nuvem**" é um nome bonito para uma coleção de armazéns ao redor do mundo com
+computadores que podem ser alugados
+
+  - Um **servidor** é um computador com um programa que o permite receber
+  requisições de outros computadores
+  
+  - Um **site** é um conjunto de código sendo servido em um servidor, que pode
+  ser convertido para uma página visual
+  
+- A Google oferece sua **infraestrutura** para ser alugada por usuários comuns
+
+  - O GCP é a plataforma onde podemos controlar esses recursos sem nos
+  preocuparmos com a **manutenção** do hardware e do software
+
+---
+# Exemplo de CD no GCP
+
+1. Menu Lateral
+
+1. Cloud Build
+
+1. **Acionadores**
+
+1. Conectar repositório
+
+1. GitHub
+
+1. Criar **gatilho**
+
+1. Editar gatilho
+
+1. Verificar progresso
+
+1. Garantir sucesso
+
+---
+# Exemplo de deploy no GCP
+
+1. Menu Lateral
+
+1. IAM e administrador
+
+1. Contas de **serviço**
+
+1. Criar conta de serviço
+
+1. Administrador do **Storage** + Administrador do **Compute**
+
+1. Menu Lateral
+
+1. Google Compute Engine
+
+1. Criar **instância**
+
+1. Implante uma **imagem** de contêiner nesta instância de VM
+
+---
+# Exemplo de deploy no GCP (cont.)
+
+1. Menu Lateral
+
+1. Rede VPC
+
+1. Firewall
+
+1. Criar regra de **firewall**
+
+1. Intervalos de IP de origem: **0.0.0.0/0**
+
+1. Menu Lateral
+
+1. Rede VPC
+
+1. Endereços **IP externos**
+
+1. Tipo: Temporário &gt; **Estático**
+
+---
+# Testando um deploy
+
+&gt; DevOps (desenvolvimento + operações de TI) tem por objetivo acelerar o ciclo
+de desenvolvimento e prover CD com software de alta qualidade
+
+- Depois que o deploy estiver pronto (máquina virtual rodando, configurações
+realizadas) é essencial testar
+
+- Em um ambiente corporativo em que os riscos são altos, os testes precisam
+ocorrer **antes** do deploy
+
+- Muitas vezes é vital ter um **ambiente de testes** bem configurado que simule
+todos os problemas pelo qual o programa pode passar
+
+  - Estamos usando a metodologia **XGH**, então testamos só depois de implantar
+
+- Alguns testes: corretude, carga, responsividade, etc.
+
+---
+# Testando a API
+
+
+```r
+params &lt;- list(msg = "Testado!")
+resp &lt;- GET("http://34.66.246.102:8000/echo", query = params)
+
+content(resp)[[1]]
+```
+
+
+```
+#&gt; [1] "A mensagem é: 'Testado!'"
+```
+
+
+
+```r
+params &lt;- list(a = 2, b = 6)
+resp &lt;- POST("http://34.66.246.102:8000/sum", body = params, encode = "json")
+
+content(resp)[[1]]
+```
+
+
+```
+#&gt; [1] 8
+```
+
+
+- Ainda seria possível associar um domínio a esses IPs, mas isso (configuração
+de CDN) foge do tópico da aula de hoje
+
+---
+class: inverse, center, middle
+# Shiny
+
+---
+# Shiny empacotado
+
+- Apps começam com uma ideia simples, mas vão **crescendo** até o ponto que não
+conseguimos mais entender onde estão os seus pedaços
+
+- Com **módulos**, é possível separar pedaços de um shiny em scripts separados, que
+são adicionados como funções dentro do app principal
+
+  - Um módulo pode usar funções de certo pacote, e às vezes esquecemos de checar
+  se ele está instalado quando o app for colocado em produção
+
+- Uma alternativa muito útil é desenvolver o shiny dentro de um **pacote**
+
+  - As **dependências** são checadas automaticamente
+  
+  - Os módulos se tornam **funções** do pacote
+  
+  - Tudo deve ficar **documentado** e organizado por padrão
+
+---
+# O pacote {golem}
+
+&gt; `{golem}` é um framework opinionado para construir aplicações shiny prontas
+para produção https://engineering-shiny.org
+
+- O `{golem}` cria **templates** estruturadas que facilitam o desenvolvimento,
+configuração, manutenção e implantação de um dashboard shiny
+
+  - A template é um **pacote** R, importante pelos motivos destacados antes
+  
+  - Contém uma coleção de funções que **aceleram** tarefas repetitivas
+  
+  - Possui diversos **atalhos** para criar arquivos comuns
+  
+  - Traz funções que automatizam a preparação para o **deploy**
+
+- Eu pessoalmente acho a template muito carregada, mas muita gente gosta
+
+---
+# Exemplo de {golem}
+
+- A função `create_golem()` cria um projeto-pacote com toda a estrutura
+
+  - `R/` deve conter as funções, `dev/` ajuda a montar o shiny e `inst/` fica
+  com os recursos auxiliares
+
+
+```r
+library(golem)
+
+create_golem("arqs/exemplo_shiny/", package_name = "exemplo")
+```
+
+- O primeiro passo é passar pelo arquivo `dev/01_start.R` para configurar o app
+
+- O segundo é desenvolver o app (`dev/02_dev.R` pode ajudar)
+
+- O último passo é criar a estrutura para deploy com `dev/03_deploy.R`
+
+  - Nunca esquecer de instalar o app e testar com `exemplo::run_app()`
+
+---
+
+
+```
+#&gt; ../arqs/exemplo_shiny/
+#&gt; ├── DESCRIPTION
+#&gt; ├── Dockerfile
+#&gt; ├── NAMESPACE
+#&gt; ├── R
+#&gt; │   ├── app_config.R
+#&gt; │   ├── app_server.R
+#&gt; │   ├── app_ui.R
+#&gt; │   └── run_app.R
+#&gt; ├── dev
+#&gt; │   ├── 01_start.R
+#&gt; │   ├── 02_dev.R
+#&gt; │   ├── 03_deploy.R
+#&gt; │   └── run_dev.R
+#&gt; ├── exemplo_shiny.Rproj
+#&gt; └── inst
+#&gt;     ├── app
+#&gt;     │   └── www
+#&gt;     │       └── favicon.ico
+#&gt;     └── golem-config.yml
+```
+
+---
+class: inverse, center, middle
+# Deploy II
+
+---
+# Preparação para deploy
+
+- Como o shiny é um pacote, podemos seguir os passos de **desenvolvimento** de
+pacotes antes de colocá-lo em produção
+
+  - Rodar `devtools::check()` para garantir que tudo está **em ordem**
+
+  - **Instalar** o app com `devtools::install()`
+  
+  - **Executar o app** em uma sessão limpa com `exemplo::run_app()`
+
+- Quando o shiny estiver pronto, adicionar um **Dockerfile** com `add_dockerfile()`
+
+  - O Dockerfile **não é otimizado** para o Google Cloud e isso pode implicar em
+  alguns problemas
+  
+  - Quando necessário, edite o Dockerfile para **adequá-lo** ao ambiente real
+  onde ele será implantado
+
+---
+
+
+```r
+add_dockerfile()
+```
+
+```{}
+FROM rocker/r-ver:4.0.2
+RUN apt-get update &amp;&amp; apt-get install -y  git-core libcurl4-openssl-dev libgit2-dev libssh2-1-dev libssl-dev libxml2-dev make pandoc pandoc-citeproc zlib1g-dev &amp;&amp; rm -rf /var/lib/apt/lists/*
+RUN echo "options(repos = c(CRAN = 'https://cran.rstudio.com/'), download.file.method = 'libcurl')" &gt;&gt; /usr/local/lib/R/etc/Rprofile.site
+RUN R -e 'install.packages("remotes")'
+RUN R -e 'remotes::install_github("r-lib/remotes", ref = "97bbf81")'
+RUN Rscript -e 'remotes::install_version("config",upgrade="never", version = "0.3")'
+RUN Rscript -e 'remotes::install_version("golem",upgrade="never", version = "0.2.1")'
+RUN Rscript -e 'remotes::install_version("shiny",upgrade="never", version = "1.5.0")'
+RUN Rscript -e 'remotes::install_version("attempt",upgrade="never", version = "0.3.1")'
+RUN Rscript -e 'remotes::install_version("DT",upgrade="never", version = "0.13")'
+RUN Rscript -e 'remotes::install_version("glue",upgrade="never", version = "1.4.1")'
+RUN Rscript -e 'remotes::install_version("htmltools",upgrade="never", version = "0.5.0")'
+RUN mkdir /build_zone
+ADD . /build_zone
+WORKDIR /build_zone
+RUN R -e 'remotes::install_local(upgrade="never")'
+EXPOSE 80
+CMD R -e "options('shiny.port'=80,shiny.host='0.0.0.0');exemplo::run_app()"
+```
+
+---
+# Exemplo de CD no GCP
+
+1. Menu Lateral
+
+1. Cloud Build
+
+1. **Acionadores**
+
+1. Conectar repositório
+
+1. GitHub
+
+1. Criar **gatilho**
+
+1. Editar gatilho
+
+1. Verificar progresso
+
+1. Garantir sucesso
+
+---
+# Exemplo de deploy no GCP
+
+1. Menu Lateral
+
+1. Google Compute Engine
+
+1. Criar **instância**
+
+1. Implante uma **imagem** de contêiner nesta instância de VM
+
+1. Menu Lateral
+
+1. Rede VPC
+
+1. Endereços **IP externos**
+
+1. Tipo: Temporário &gt; **Estático**
+
+---
+# Testando o shiny
+
+- **Navegar** para o link correpondente ao IP: http://104.198.249.27
+
+  - A **porta 80** é a padrão para o tráfego HTTP, então não há necessidade de
+  especificar nada
+
+&lt;img src="static/shiny.png" width="569" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse, center, middle
+# Fim!
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

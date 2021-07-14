@@ -1,0 +1,24 @@
+Olá!
+
+Nosso curso de Deploy está chegando. Marque no calendário: as aulas acontecerão nos dias {D1/MM} e {D2/MM} das 09:00 às 13:00.
+
+Para entrar na turma do Google Classroom, onde nos reuniremos entre as aulas, basta seguir o link do convite:
+
+{LINK}
+
+Você precisará apenas de um computador com acesso à internet, mas, para aproveitar melhor o tempo, pedimos que vocês preparem algumas coisas antes do curso:
+
+- Instale o R e o RStudio: https://www.curso-r.com/material/instalacao/
+- Crie uma conta gratuita no Google (desnecessário se você já tiver um Gmail): https://accounts.google.com/SignUp?hl=pt
+- Crie uma conta gratuita na Google Cloud Platform: https://console.cloud.google.com/freetrial
+- Crie uma conta gratuita no GitHub: https://github.com/join
+- Crie uma conta gratuita no Docker Hub: https://hub.docker.com/signup
+- Instale os pacotes necessários: install.packages(c("plumber", "tidyverse", "golem"))
+
+O curso será ministrado através do Zoom. Para acessar a sala do Zoom, utilize o link:
+
+{LINK}
+
+Os materiais serão disponibilizados no primeiro dia, mas daremos instruções mais detalhadas durante as aulas para que a experiência no curso seja a melhor possível.
+
+Até logo!
