@@ -1,3 +1,5 @@
+name: exemplo-ghp
+
 on: [push]
 jobs:
   publish:
