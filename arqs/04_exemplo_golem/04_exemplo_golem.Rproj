@@ -1,0 +1,11 @@
+Version: 1.0
+RestoreWorkspace: Default
+SaveWorkspace: Default
+AlwaysSaveHistory: Default
+EnableCodeIndexing: yes
+UseSpacesForTab: yes
+NumSpacesForTab: 2
+Encoding: UTF-8
+RnwWeave: Sweave
+LaTeX: pdfLaTeX
+PackageRoxygenize: rd,collate,namespace

@@ -62,13 +62,15 @@ knitr::include_graphics("static/cursor.png")
 
 - O pacote `{plumber}`
 
-- O que é docker
-
-- O pacote `{golem}`
+- O que é Docker
 
 - O que é GitHub Actions
 
-- Automatização
+- O que é GitHub Packages
+
+- O pacote `{golem}`
+
+- Deploy na Google Cloud
 
 ---
 # Está tudo preparado?
@@ -83,7 +85,7 @@ knitr::include_graphics("static/cursor.png")
 
 - Instalação R e RStudio
 
-- Instalação `{plumber}`, `{tidyverse}`, `{golem}`, `{usethis}`
+- Instalação `{plumber}`, `{tidyverse}`, `{golem}`
 
 ---
 class: inverse, center, middle
@@ -174,9 +176,7 @@ knitr::include_graphics("static/pokeapi.png")
 
 ```{r}
 library(httr)
-
-resposta <- GET("https://pokeapi.co/api/v2/pokemon/ditto")
-resposta
+(resposta <- GET("https://pokeapi.co/api/v2/pokemon/ditto"))
 
 content(resposta)$moves[[1]]$move$name
 ```
@@ -264,7 +264,7 @@ do `{plumber}` no mesmo
 - Para implantar a API **localmente**, basta rodar os dois comandos a seguir
 
 ```{r, eval=FALSE}
-api <- plumb("arqs/exemplo_api.R")
+api <- plumb("arqs/01_exemplo_api.R")
 api$run(port = 8000)
 ```
 
@@ -423,7 +423,7 @@ arquivos associados e dá um nome para a mesma (argumento `-t`)
   - O argumento `--rm` limpa o armazenamento depois que tudo acaba
 
 ```{}
-cd arqs/exemplo_docker/
+cd arqs/02_exemplo_docker/
 
 docker build -t exemplo .
 
@@ -521,11 +521,11 @@ jobs:
 > O Package Registry é um serviço de hospedagem que permite a publicação de
 pacotes https://docs.github.com/pt/packages
 
-- Antigamente, a única forma de publicar imagens docker era pelo Docker Hub,
+- Antigamente, a única forma de publicar imagens Docker era pelo Docker Hub,
 mas agora temos o **Package Registry**
 
 - Com apenas um simples **Dockerfile na raiz** do repositório, é possível subir
-uma imagem docker usando uma Action
+uma imagem Docker usando uma GH Action
 
 - Depois que a imagem estiver publicada, basta usar o comando abaixo no terminal
 para utilizá-la onde for necessário
@@ -610,9 +610,7 @@ configuração, manutenção e implantação de um dashboard shiny
   com os recursos auxiliares
 
 ```{r, eval=FALSE}
-library(golem)
-
-create_golem("arqs/exemplo_shiny/", package_name = "exemplo")
+golem::create_golem("arqs/04_exemplo_golem/", package_name = "exemplogolem")
 ```
 
 - O primeiro passo é passar pelo arquivo `dev/01_start.R` para configurar o app
@@ -621,12 +619,12 @@ create_golem("arqs/exemplo_shiny/", package_name = "exemplo")
 
 - O último passo é criar a estrutura para deploy com `dev/03_deploy.R`
 
-  - Nunca esquecer de instalar o app e testar com `exemplo::run_app()`
+  - Nunca esquecer de instalar o app e testar com `exemplogolem::run_app()`
 
 ---
 
 ```{r, echo=FALSE}
-fs::dir_tree("../arqs/exemplo_shiny/")
+fs::dir_tree("../arqs/04_exemplo_golem/")
 ```
 
 ---
@@ -654,25 +652,46 @@ computadores que podem ser alugados
   preocuparmos com a **manutenção** do hardware e do software
 
 ---
-# Exemplo de CD no GCP
+# Preparação para deploy
 
-1. Menu Lateral
+- Como o shiny é um pacote, podemos seguir os passos de **desenvolvimento** de
+pacotes antes de colocá-lo em produção
 
-1. Cloud Build
+  - Rodar `devtools::check()` para garantir que tudo está **em ordem**
 
-1. **Acionadores**
+  - **Instalar** o app com `devtools::install()`
+  
+  - **Executar o app** em uma sessão limpa com `exemplodeploy::run_app()`
 
-1. Conectar repositório
+- Quando o shiny estiver pronto, adicionar um **Dockerfile** com `add_dockerfile()`
 
-1. GitHub
+  - O Dockerfile **não é otimizado** para o Google Cloud e isso pode implicar em
+  alguns problemas
+  
+  - Não esquecer de usar uma GH Action para criar um **GH Package**!
 
-1. Criar **gatilho**
+---
 
-1. Editar gatilho
+```{r, eval=FALSE}
+golem::add_dockerfile()
+```
 
-1. Verificar progresso
-
-1. Garantir sucesso
+```{}
+FROM rocker/r-ver:4.1.0
+RUN apt-get update && apt-get install -y  git-core libcurl4-openssl-dev libgit2-dev libicu-dev libssl-dev libxml2-dev make pandoc pandoc-citeproc && rm -rf /var/lib/apt/lists/*
+RUN echo "options(repos = c(CRAN = 'https://cran.rstudio.com/'), download.file.method = 'libcurl', Ncpus = 4)" >> /usr/local/lib/R/etc/Rprofile.site
+RUN R -e 'install.packages("remotes")'
+RUN Rscript -e 'remotes::install_version("shiny",upgrade="never", version = "1.6.0")'
+RUN Rscript -e 'remotes::install_version("config",upgrade="never", version = "0.3.1")'
+RUN Rscript -e 'remotes::install_version("golem",upgrade="never", version = "0.3.1")'
+RUN mkdir /build_zone
+ADD . /build_zone
+WORKDIR /build_zone
+RUN R -e 'remotes::install_local(upgrade="never")'
+RUN rm -rf /build_zone
+EXPOSE 80
+CMD R -e "options('shiny.port'=80,shiny.host='0.0.0.0');exemplodeploy::run_app()"
+```
 
 ---
 # Exemplo de deploy no GCP
@@ -734,138 +753,6 @@ todos os problemas pelo qual o programa pode passar
   - Estamos usando a metodologia **XGH**, então testamos só depois de implantar
 
 - Alguns testes: corretude, carga, responsividade, etc.
-
----
-# Testando a API
-
-```{r, eval=FALSE}
-params <- list(msg = "Testado!")
-resp <- GET("http://34.66.246.102:8000/echo", query = params)
-
-content(resp)[[1]]
-```
-
-```{r, echo=FALSE}
-"A mensagem é: 'Testado!'"
-```
-
-
-```{r, eval=FALSE}
-params <- list(a = 2, b = 6)
-resp <- POST("http://34.66.246.102:8000/sum", body = params, encode = "json")
-
-content(resp)[[1]]
-```
-
-```{r, echo=FALSE}
-8
-```
-
-- Ainda seria possível associar um domínio a esses IPs, mas isso (configuração
-de CDN) foge do tópico da aula de hoje
-
----
-class: inverse, center, middle
-# Deploy II
-
----
-# Preparação para deploy
-
-- Como o shiny é um pacote, podemos seguir os passos de **desenvolvimento** de
-pacotes antes de colocá-lo em produção
-
-  - Rodar `devtools::check()` para garantir que tudo está **em ordem**
-
-  - **Instalar** o app com `devtools::install()`
-  
-  - **Executar o app** em uma sessão limpa com `exemplo::run_app()`
-
-- Quando o shiny estiver pronto, adicionar um **Dockerfile** com `add_dockerfile()`
-
-  - O Dockerfile **não é otimizado** para o Google Cloud e isso pode implicar em
-  alguns problemas
-  
-  - Quando necessário, edite o Dockerfile para **adequá-lo** ao ambiente real
-  onde ele será implantado
-
----
-
-```{r, eval=FALSE}
-add_dockerfile()
-```
-
-```{}
-FROM rocker/r-ver:4.0.2
-RUN apt-get update && apt-get install -y  git-core libcurl4-openssl-dev libgit2-dev libssh2-1-dev libssl-dev libxml2-dev make pandoc pandoc-citeproc zlib1g-dev && rm -rf /var/lib/apt/lists/*
-RUN echo "options(repos = c(CRAN = 'https://cran.rstudio.com/'), download.file.method = 'libcurl')" >> /usr/local/lib/R/etc/Rprofile.site
-RUN R -e 'install.packages("remotes")'
-RUN R -e 'remotes::install_github("r-lib/remotes", ref = "97bbf81")'
-RUN Rscript -e 'remotes::install_version("config",upgrade="never", version = "0.3")'
-RUN Rscript -e 'remotes::install_version("golem",upgrade="never", version = "0.2.1")'
-RUN Rscript -e 'remotes::install_version("shiny",upgrade="never", version = "1.5.0")'
-RUN Rscript -e 'remotes::install_version("attempt",upgrade="never", version = "0.3.1")'
-RUN Rscript -e 'remotes::install_version("DT",upgrade="never", version = "0.13")'
-RUN Rscript -e 'remotes::install_version("glue",upgrade="never", version = "1.4.1")'
-RUN Rscript -e 'remotes::install_version("htmltools",upgrade="never", version = "0.5.0")'
-RUN mkdir /build_zone
-ADD . /build_zone
-WORKDIR /build_zone
-RUN R -e 'remotes::install_local(upgrade="never")'
-EXPOSE 80
-CMD R -e "options('shiny.port'=80,shiny.host='0.0.0.0');exemplo::run_app()"
-```
-
----
-# Exemplo de CD no GCP
-
-1. Menu Lateral
-
-1. Cloud Build
-
-1. **Acionadores**
-
-1. Conectar repositório
-
-1. GitHub
-
-1. Criar **gatilho**
-
-1. Editar gatilho
-
-1. Verificar progresso
-
-1. Garantir sucesso
-
----
-# Exemplo de deploy no GCP
-
-1. Menu Lateral
-
-1. Google Compute Engine
-
-1. Criar **instância**
-
-1. Implante uma **imagem** de contêiner nesta instância de VM
-
-1. Menu Lateral
-
-1. Rede VPC
-
-1. Endereços **IP externos**
-
-1. Tipo: Temporário > **Estático**
-
----
-# Testando o shiny
-
-- **Navegar** para o link correpondente ao IP: http://104.198.249.27
-
-  - A **porta 80** é a padrão para o tráfego HTTP, então não há necessidade de
-  especificar nada
-
-```{r, echo=FALSE, fig.align='center', dpi=160}
-knitr::include_graphics("static/shiny.png")
-```
 
 ---
 class: inverse, center, middle

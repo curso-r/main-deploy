@@ -19,10 +19,17 @@ abaixo**.
 # Ementa
 
 -   O que é deploy (implantação)
+
 -   O que é uma API
+
 -   O pacote `{plumber}`
--   O que é uma máquina virtual
--   O que é `docker`
--   Como empacotar um dashboard
+
+-   O que é docker
+
+-   O que é GitHub Actions
+
+-   O que é GitHub Packages
+
 -   O pacote `{golem}`
--   Como automatizar um deploy com `docker`
+
+-   Deploy na Google Cloud
