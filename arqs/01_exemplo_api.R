@@ -1,3 +1,4 @@
+library(plumber)
 
 #* Escreve uma mensagem
 #* @param msg A mensagem para escrever
@@ -12,4 +13,22 @@ function(msg = "") {
 #* @post /sum
 function(a, b){
   as.numeric(a) + as.numeric(b)
+}
+
+#* Retorna a soma de dois números
+#* @serializer png
+#* @post /plot
+function(){
+  plot(1:10)
+}
+
+#* Retorna a soma de dois números
+#* @serializer csv
+#* @post /base
+function(name = "mtcars") {
+  if (!name %in% c("mtcars", "iris")) {
+    stop("Base nao encontrada")
+  }
+  
+  get(name)
 }
