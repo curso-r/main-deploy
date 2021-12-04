@@ -44,7 +44,6 @@ jobs:
       - name: Deploy to Shinyapps.io
         run: |
           install.packages('rsconnect')
-          remotes::install_github("curso-r/main-deploy", subdir = "arqs/04_exemplo_golem")
           rsconnect::setAccountInfo("acursor", "${{ secrets.SHINYAPPS_TOKEN }}", "${{ secrets.SHINYAPPS_SECRET }}")
           rsconnect::deployApp(appName = "exemplogolem")
         shell: Rscript {0}
