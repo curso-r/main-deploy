@@ -7,3 +7,5 @@ $run_dev.*
 ^LICENSE\.md$
 ^app\.R$
 ^rsconnect$
+^Dockerfile$
+^\.dockerignore$
