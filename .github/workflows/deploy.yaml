@@ -1,0 +1,50 @@
+name: Deploy app
+
+on: [push]
+
+jobs:
+  deploy-app:
+    runs-on: ubuntu-18.04
+    defaults:
+      run:
+        working-directory: ./arqs/04_exemplo_golem/
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: r-lib/actions/setup-r@v1
+
+      - name: Install pak and query dependencies
+        run: |
+          install.packages("pak", repos = "https://r-lib.github.io/p/pak/dev/")
+          saveRDS(pak::pkg_deps("local::.", dependencies = TRUE), "../../.github/r-depends.rds")
+        shell: Rscript {0}
+
+      - name: Restore R package cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ env.R_LIBS_USER }}/*
+            !${{ env.R_LIBS_USER }}/pak
+          key: ${{ matrix.config.os }}-${{ steps.install-r.outputs.installed-r-version }}-1-${{ hashFiles('../../.github/r-depends.rds') }}
+          restore-keys: ${{ matrix.config.os }}-${{ steps.install-r.outputs.installed-r-version }}-1-
+
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          pak::local_system_requirements(execute = TRUE)
+          install.packages("remotes")
+        shell: Rscript {0}
+
+      - name: Install dependencies
+        run: |
+          pak::local_install_dev_deps(upgrade = TRUE)
+          pak::local_install(".")
+        shell: Rscript {0}
+
+      - name: Deploy to Shinyapps.io
+        run: |
+          install.packages('rsconnect')
+          remotes::install_github("curso-r/main-deploy", subdir = "arqs/04_exemplo_golem")
+          rsconnect::setAccountInfo("acursor", "${{ secrets.SHINYAPPS_TOKEN }}", "${{ secrets.SHINYAPPS_SECRET }}")
+          rsconnect::deployApp(appName = "exemplogolem")
+        shell: Rscript {0}
