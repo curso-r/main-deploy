@@ -1,7 +1,7 @@
 ---
 title: "Workshop: Deploy"
 author: "<img src = 'https://d33wubrfki0l68.cloudfront.net/9b0699f18268059bdd2e5c21538a29eade7cbd2b/67e5c/img/logo/cursor1-5.png' width = '20%'>"
-date: "Julho 2021"
+date: "Setembro 2022"
 output:
   xaringan::moon_reader:
     lib_dir: libs
@@ -23,13 +23,6 @@ class: inverse, center, middle
 # Prólogo
 
 ---
-# Curso-R
-
-```{r, echo=FALSE, fig.align='center', dpi=280}
-knitr::include_graphics("static/nos.png")
-```
-
----
 # Linha do tempo
 
 ```{r, echo=FALSE, fig.align='center', dpi=130}
@@ -41,13 +34,15 @@ knitr::include_graphics("static/cursor.png")
 
 - Alguns lembretes:
   
-  - O curso ocorre das **9:00 às 13:00**
+  - O curso ocorre das **19:00 às 22:00**
+  
+  - 30 minutos de monitoria antes das aulas, das **18:30 às 19:00**
   
   - A **gravação** do curso ficará disponível para todos por 1 ano
   
   - Todos se tornarão membros preferenciais no nosso **Discourse**
   
-  - Intervalos de 10 minutos ao decorrer da aula. Provavelmente 3 intervalos por aula.
+  - Intervalos de 10 a 15 minutos ao decorrer da aula
 
 
 ---

@@ -11,9 +11,15 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
+.title[
 # Workshop: Deploy
+]
+.author[
 ### <img src = 'https://d33wubrfki0l68.cloudfront.net/9b0699f18268059bdd2e5c21538a29eade7cbd2b/67e5c/img/logo/cursor1-5.png' width = '20%'>
-### Julho 2021
+]
+.date[
+### Setembro 2022
+]
 
 ---
 
@@ -22,11 +28,6 @@ class: center, middle, inverse, title-slide
 
 class: inverse, center, middle
 # Prólogo
-
----
-# Curso-R
-
-&lt;img src="static/nos.png" width="754" style="display: block; margin: auto;" /&gt;
 
 ---
 # Linha do tempo
@@ -38,13 +39,15 @@ class: inverse, center, middle
 
 - Alguns lembretes:
   
-  - O curso ocorre das **9:00 às 13:00**
+  - O curso ocorre das **19:00 às 22:00**
+  
+  - 30 minutos de monitoria antes das aulas, das **18:30 às 19:00**
   
   - A **gravação** do curso ficará disponível para todos por 1 ano
   
   - Todos se tornarão membros preferenciais no nosso **Discourse**
   
-  - Intervalos de 10 minutos ao decorrer da aula. Provavelmente 3 intervalos por aula.
+  - Intervalos de 10 a 15 minutos ao decorrer da aula
 
 
 ---
@@ -196,10 +199,10 @@ library(httr)
 
 ```
 #&gt; Response [https://pokeapi.co/api/v2/pokemon/ditto]
-#&gt;   Date: 2021-11-26 18:31
+#&gt;   Date: 2022-09-13 18:49
 #&gt;   Status: 200
 #&gt;   Content-Type: application/json; charset=utf-8
-#&gt;   Size: 22.3 kB
+#&gt;   Size: 22.7 kB
 ```
 
 ```r
@@ -238,7 +241,7 @@ content(resp)$url
 ```
 
 ```
-#&gt; NULL
+#&gt; [1] "https://apod.nasa.gov/apod/image/1912/M33-HaLRGB-RayLiao1024.jpg"
 ```
 
 - Neste caso, ainda podemos utilizar a resposta da API para exibir uma imagem
@@ -713,24 +716,42 @@ golem::create_golem("arqs/04_exemplo_golem/", package_name = "exemplogolem")
 #&gt; ../arqs/04_exemplo_golem/
 #&gt; ├── 04_exemplo_golem.Rproj
 #&gt; ├── DESCRIPTION
+#&gt; ├── Dockerfile
+#&gt; ├── LICENSE
+#&gt; ├── LICENSE.md
 #&gt; ├── NAMESPACE
 #&gt; ├── R
+#&gt; │   ├── _disable_autoload.R
 #&gt; │   ├── app_config.R
 #&gt; │   ├── app_server.R
 #&gt; │   ├── app_ui.R
+#&gt; │   ├── golem_utils_server.R
+#&gt; │   ├── golem_utils_ui.R
 #&gt; │   └── run_app.R
+#&gt; ├── app.R
+#&gt; ├── cloudbuild.yaml
 #&gt; ├── dev
 #&gt; │   ├── 01_start.R
 #&gt; │   ├── 02_dev.R
 #&gt; │   ├── 03_deploy.R
 #&gt; │   └── run_dev.R
 #&gt; ├── inst
+#&gt; │   ├── WORDLIST
 #&gt; │   ├── app
 #&gt; │   │   └── www
 #&gt; │   │       └── favicon.ico
 #&gt; │   └── golem-config.yml
-#&gt; └── man
-#&gt;     └── run_app.Rd
+#&gt; ├── man
+#&gt; │   └── run_app.Rd
+#&gt; ├── rsconnect
+#&gt; │   └── shinyapps.io
+#&gt; │       └── acursor
+#&gt; │           └── exemplogolem.dcf
+#&gt; └── tests
+#&gt;     ├── spelling.R
+#&gt;     ├── testthat
+#&gt;     │   └── test-golem-recommended.R
+#&gt;     └── testthat.R
 ```
 
 ---
@@ -912,6 +933,19 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
 (function() {
   "use strict"
   // Replace <script> tags in slides area to make them executable
