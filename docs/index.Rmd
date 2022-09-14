@@ -281,10 +281,10 @@ do `{plumber}` no mesmo
 
 ```{r, eval=FALSE}
 api <- plumb("arqs/01_exemplo_api.R")
-api$run(port = 8000)
+pr_run(api, port = 8000)
 ```
 
-- A função `run()` inicializa a API em http://localhost:8000 (dependendo da
+- A função `pr_run()` inicializa a API em http://localhost:8000 (dependendo da
 **porta** escolhida)
 
 ```{r, eval=FALSE}

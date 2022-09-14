@@ -14,7 +14,7 @@ function(msg = "") {
 function(a, b){
   as.numeric(a) + as.numeric(b)
 }
-
+ 
 #* Retorna a soma de dois números
 #* @serializer png
 #* @post /plot
@@ -29,6 +29,6 @@ function(name = "mtcars") {
   if (!name %in% c("mtcars", "iris")) {
     stop("Base nao encontrada")
   }
-  
+
   get(name)
 }

@@ -199,7 +199,7 @@ library(httr)
 
 ```
 #&gt; Response [https://pokeapi.co/api/v2/pokemon/ditto]
-#&gt;   Date: 2022-09-13 18:49
+#&gt;   Date: 2022-09-14 01:11
 #&gt;   Status: 200
 #&gt;   Content-Type: application/json; charset=utf-8
 #&gt;   Size: 22.7 kB
@@ -300,10 +300,10 @@ do `{plumber}` no mesmo
 
 ```r
 api &lt;- plumb("arqs/01_exemplo_api.R")
-api$run(port = 8000)
+pr_run(api, port = 8000)
 ```
 
-- A função `run()` inicializa a API em http://localhost:8000 (dependendo da
+- A função `pr_run()` inicializa a API em http://localhost:8000 (dependendo da
 **porta** escolhida)
 
 
