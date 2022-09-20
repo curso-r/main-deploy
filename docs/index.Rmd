@@ -56,7 +56,7 @@ knitr::include_graphics("static/cursor.png")
 
 - O que é Docker
 
-- Deploy usando [Render.com](https://render.com)
+- Deploy usando [Render](https://render.com)
 
 - O que é GitHub Actions
 
@@ -71,7 +71,7 @@ knitr::include_graphics("static/cursor.png")
 
 - Conta GitHub
 
-- Conta Render.com
+- Conta Render
 
 - Conta Google
 
@@ -386,15 +386,15 @@ knitr::include_graphics("static/dockervm.png")
 ---
 # Docker e o sistema operacional
 
-- Docker roda em uma camada acima do sistema operacional hospedeiro e portanto usa recursos deste.
+- Docker roda em uma camada acima do sistema operacional hospedeiro e portanto usa recursos deste
 
-- A principal diferença quando comparado a uma VM é que imagens construidas em um OS não são necessáriamente compatíveis com outros OS's.
+- A principal diferença quando comparado a uma VM é que imagens construidas em um OS não são necessáriamente compatíveis com outros OSs
 
-- **Lembre**: Dockerfile's e imagens construidos no Windows são bem diferentes dos que são construidos para sistemas unix (Linux/MacOs). 
+  - **Lembre**: Dockerfiles e imagens construidos no Windows são bem diferentes dos que são construidos para sistemas Unix (Linux/MacOS)
 
-- Em geral, queremos Dockerfile's p/ sistemas unix pelo fato de que é muito mais prático/barato na hora de alugar um servidor na nuvem.
+- Em geral, queremos Dockerfiles de Unix porque é muito mais prático/barato na hora de alugar um servidor na nuvem.
 
-- Quer quer testar Docker de unix no Windows pode utilizar o [WSL](https://docs.microsoft.com/pt-br/windows/wsl/about) *Windows Subsystem for Linux* que permitte executar essas imagens.
+  - Quem quiser fazer isso no Windows > 10 pode utilizar o [*Windows Subsystem for Linux*](https://docs.microsoft.com/pt-br/windows/wsl/about) que permitte executar essas imagens
 
 ---
 # Dockerfile
@@ -461,43 +461,44 @@ docker run -p 8000:8000 --rm exemplo
 
 ---
 class: inverse, center, middle
-# Deploy no Render.com
+# Deploy no Render
 
 ---
-# Deploy no Render.com
+# Render
 
-Render.com é uma PaaS (*Plata forma como Serviço*) que permite hospedar serviços Web, bancos de dados entre outros tipos de aplicações.
+> Render é uma _platform as a service_ (PaaS) que permite hospedar serviços web, bancos de dados entre outros tipos de aplicações
 
-- Tem suporte p/ imagens Docker.
+- Tem várias funcionalidades extremamente interessantes:
 
-- Permite utilizar domínios customizados.
+  - Tem suporte para imagens **Docker**
+  
+  - Permite utilizar domínios customizados
+  
+  - Possui serviço de **autoscaling**
+  
+  - Tenta ser o mais simples possível para configurar
+  
+  - Tem bom suporte para *workflows* com Git/GitHub
 
-- Possui serviço de **autoscaling**.
-
-- Tenta ser o mais simples possível p/ configurar.
-
-- Tem bom suporte para workflows com Git/GitHub.
-
-Alternativas: [Heroku](https://www.heroku.com/), [Google Cloud Run](https://cloud.google.com/run?utm_source=google&utm_medium=cpc&utm_campaign=latam-BR-all-pt-dr-BKWS-all-all-trial-e-dr-1009897-LUAC0008673&utm_content=text-ad-none-any-DEV_c-CRE_434184323500-ADGP_Hybrid%20%7C%20BKWS%20-%20EXA%20%7C%20Txt%20~%20Compute_Cloud-Run-KWID_43700066419106882-kwd-680158540998&utm_term=KW_google%20cloud%20run-ST_Google%20Cloud%20Run&gclid=CjwKCAiAqIKNBhAIEiwAu_ZLDoAgj_q8nXt5GIIzvzYhFJiiWznqRs9c6ejUV77jmzA5Jc-S-_QQMBoCcyUQAvD_BwE&gclsrc=aw.ds), [Platform.sh](https://platform.sh/) e [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
+- Alternativas: [Heroku](https://www.heroku.com/), [Google Cloud Run](https://cloud.google.com/run), [Platform.sh](https://platform.sh/) e [AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
 
 ---
 # Implantação
 
-1. Criar um repositório no Git com seu **Dockerfile** e código necessário p/ executar a sua API.
+- Criar um repositório no Git/GitHub com seu **Dockerfile** e código necessário para executar a sua API
 
-2. Clicar em New > Web Service
+- Clicar em **New** > **Web Service**
 
 ```{r echo=FALSE, fig.align='center', dpi=130}
 knitr::include_graphics("static/render-new.png")
 ```
 
 ---
-# Implantação
+# Implantação (cont.)
 
-3. Selecionar o repositório na lista.
+- Selecionar o repositório na lista.
 
-4. Aguardar o *build*! `r emo::ji("award")`
-
+- Aguardar o *build*! `r emo::ji("award")`
 
 ```{r echo=FALSE, fig.align='center', dpi=130}
 knitr::include_graphics("static/render-building.png")
