@@ -1,20 +1,18 @@
 Package: exemplogolem
-Title: Um Exemplo De Golem
+Title: An Amazing Shiny App
 Version: 0.0.0.9000
-Authors@R: person('Caio', 'Lente', email = 'clente@curso-r.com', role = c('cre', 'aut'))
-Description: Um exemplo de golem para demonstrar um fluxo de CI/CD mais avançado.
+Authors@R: 
+    person(given = "firstname",
+           family = "lastname",
+           role = c("aut", "cre"),
+           email = "your@email.com")
+Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Imports: 
     config (>= 0.3.1),
-    golem (>= 0.3.1),
+    golem (>= 0.3.3),
     pkgload,
-    rlang,
-    shiny (>= 1.7.1)
+    shiny (>= 1.7.2)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.2
-Suggests: 
-    spelling,
-    testthat (>= 3.0.0)
-Config/testthat/edition: 3
-Language: en-US
+RoxygenNote: 7.2.1
