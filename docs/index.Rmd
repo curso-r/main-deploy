@@ -69,17 +69,17 @@ knitr::include_graphics("static/cursor.png")
 ---
 # Está tudo preparado?
 
-- Conta GitHub
+- [Conta GitHub](https://github.com/)
 
-- Conta Render
+- [Conta Render](https://render.com/)
 
-- Conta Google
+- [Conta Google](https://myaccount.google.com)
 
-- Cadastro no Google Cloud
+- [Cadastro no Google Cloud](https://cloud.google.com/) (com a conta Google)
 
-- Conta Docker Hub
+- [Conta Docker Hub](https://hub.docker.com/)
 
-- Instalação R e RStudio
+- [Instalação R e RStudio](https://livro.curso-r.com/1-instalacao.html)
 
 - Instalação `{plumber}`, `{tidyverse}`, `{golem}`
 
