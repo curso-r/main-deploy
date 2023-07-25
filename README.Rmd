@@ -1,42 +1,64 @@
 ---
 output: github_document
+params:
+  curso: deploy
 ---
 
 # Deploy
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<!-- badges: start -->
+[![CC BY-NC-SA 4.0](https://mirrors.creativecommons.org/presskit/buttons/80x15/svg/by-nc-sa.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+<!-- badges: end -->
+
 ```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-Repositório principal do curso Deploy.
+Repositório principal do curso _Deploy_.
 
-Inscreva-se no curso: https://www.curso-r.com/cursos/deploy
+Inscreva-se no curso: https://loja.curso-r.com/
 
 **Acesse o material completo do curso escolhendo uma das turmas abaixo**.
 
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
-knitr::kable(CursoRutils:::listar_turmas_recentes("deploy"))
+```{r, echo = FALSE}
+params$curso |>
+  stringr::str_c('org:curso-r in:name "', ... = _, '"') |>
+  gh::gh("/search/repositories?q={query}", query = _, per_page = 100) |>
+  purrr::pluck("items") |>
+  purrr::map_chr("name") |>
+  tibble::tibble(repo = _) |>
+  dplyr::filter(!stringr::str_detect(repo, "main")) |>
+  dplyr::filter(stringr::str_detect(repo, paste0("[0-9]{6}-", params$curso))) |>
+  dplyr::mutate(
+    date = repo |>
+      stringr::str_extract("^[0-9]+") |>
+      lubridate::ym(),
+    Turma = stringr::str_c(
+      lubridate::month(date, TRUE, FALSE, "pt_BR.UTF-8"),
+      " de ",
+      lubridate::year(date)
+    ),
+    Material = stringr::str_c("curso-r.github.io/", repo),
+    Material = stringr::str_c("[", Material, "](https://", Material, ")"),
+    GitHub = stringr::str_c("github.com/curso-r/", repo),
+    GitHub = stringr::str_c("[", GitHub, "](https://", GitHub, ")"),
+  ) |>
+  dplyr::arrange(dplyr::desc(date)) |>
+  dplyr::select(Turma, Material, GitHub) |>
+  knitr::kable()
 ```
 
-# Ementa
+## Ementa
 
-- O que é deploy (implantação)
+3 aulas (9h) abordando os temas:
 
-- O que é uma API
-
-- O pacote `{plumber}`
-
-- O que é docker
-
-- O que é GitHub Actions
-
-- O que é GitHub Packages
-
-- O pacote `{golem}`
-
-- Deploy na Google Cloud
+  - O que é deploy (implantação)
+  - O que é uma API
+  - O pacote plumber
+  - O que é Docker
+  - O que é GitHub Actions
+  - O que é GitHub Packages
+  - O pacote golem
+  - Deploy na Google Cloud
