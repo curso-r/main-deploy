@@ -260,7 +260,7 @@ do `{plumber}` no mesmo
 - Para implantar a API **localmente**, basta rodar os dois comandos a seguir
 
 ```{r, eval=FALSE}
-api <- plumb("arqs/01_exemplo_api.R")
+api <- plumb("exemplos/01_exemplo_api.R")
 pr_run(api, port = 8000)
 ```
 
@@ -333,6 +333,10 @@ content(resp)[[1]]
 ---
 class: inverse, center, middle
 # Docker
+
+---
+class: middle, center
+# Iniciar gravação!
 
 ---
 # O que é Docker?
@@ -432,7 +436,7 @@ arquivos associados e dá um nome para a mesma (argumento `-t`)
   - O argumento `--rm` limpa o armazenamento depois que tudo acaba
 
 ```{}
-cd arqs/02_exemplo_docker/
+cd exemplos/02_exemplo_docker/
 
 docker build -t exemplo .
 
@@ -664,7 +668,7 @@ configuração, manutenção e implantação de um dashboard shiny
   com os recursos auxiliares
 
 ```{r, eval=FALSE}
-golem::create_golem("arqs/04_exemplo_golem/", package_name = "exemplogolem")
+golem::create_golem("exemplos/04_exemplo_golem/", package_name = "exemplogolem")
 ```
 
 - O primeiro passo é passar pelo arquivo `dev/01_start.R` para configurar o app
@@ -678,7 +682,7 @@ golem::create_golem("arqs/04_exemplo_golem/", package_name = "exemplogolem")
 ---
 
 ```{r, echo=FALSE}
-fs::dir_tree("../arqs/04_exemplo_golem/")
+fs::dir_tree("../exemplos/04_exemplo_golem/")
 ```
 
 ---
